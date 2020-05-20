@@ -31,19 +31,20 @@
                 background-color: lawngreen;
                 border-radius: 20%;
             }
-            @media (max-width: 375px) {
+            @media only screen and (max-width: 400px) {
                  canvas{
-                     margin: 0;
+                     margin-left: 0;
                      margin-top: 30%;
                  }   
                  div{
-                     width: 180px;
-                     height: 180px;
+                    width: 400px;
+                     height: 400px;
                      margin-left: 70%;
+                     margin-right: 50%;
                  }
                  button {
-                    width: 80px;
-                    height: 60px;
+                    width: 190px;
+                    height: 130px;
                  }
             }
         </style>
@@ -205,8 +206,6 @@
         }
 
         function stopmove(){
-                myplayer.image.src = "pacmanopen.png";
-                console.log(myplayer.image.src);
                 myplayer.moveperpendicular = 0;
                 myplayer.movelinear = 0;
             }
@@ -219,7 +218,6 @@
                if((myplayer.hit(obstacles[i]))||(myplayer.hit(obstacles[i])=="outofcanvas")){
                     gameover.text = "gameover"; 
                     gameover.update();
-                    restart.update();
                     mygamearea.stop();//stops the game if u hit the something
                     return;
                 }
@@ -268,11 +266,12 @@
         
 </script>
 <div>
-<button onmousedown="move('up');" ontouchstart="move('up')" onmouseup="stopmove()">UP</button><br>
-<button onmousedown="move('left');" onmouseup="stopmove()">LEFT</button>
-<button onmousedown="move('right');" onmouseup="stopmove()">RIGHT</button><br>
-<button onmousedown="move('down');" onmouseup="stopmove()">DOWN</button>
+<button onmousedown="move('up');" ontouchstart="move('up');" onmouseup="stopmove()" ontouchend="stopmove();">UP</button><br>
+<button onmousedown="move('left');" ontouchstart="move('left');" onmouseup="stopmove()" ontouchend="stopmove();">LEFT</button>
+<button onmousedown="move('right');" ontouchstart="move('right');" onmouseup="stopmove()" ontouchend="stopmove();">RIGHT</button><br>
+<button onmousedown="move('down');" ontouchstart="move('down');" onmouseup="stopmove()" ontouchend="stopmove();">DOWN</button>
 </div>
-
+<h2>Use keyboard's WASD or arrow keys and for mobile devices use the arrow keys</h2>
+<h2>note once you start using keypad the onscreen buttons are rendered useless</h2>
 </body>
 </html>
