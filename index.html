@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Prototype Game</title>
+        <style>
+            canvas{
+                background: rgb(17, 16, 16);
+                margin-left: 20%;
+                border:10px solid rgb(61, 58, 58);
+                border-radius: 10px;
+            }
+            div{
+                border-radius: 50%;
+                border:2px solid black;
+                width: 165px;
+                height: 150px;
+                margin-left: 40% ;
+                margin-top: 2em;
+                text-align: center;
+                overflow: hidden;
+                background-color: indigo;
+                user-select : none;
+            }
+            button{
+                padding: 1em;
+                width: 80px;
+                margin-top: 3px;
+                text-align: center;
+                background-color: lawngreen;
+                border-radius: 20%;
+            }
+            @media (max-width: 375px) {
+                 canvas{
+                     margin: 0;
+                     margin-top: 30%;
+                 }   
+                 div{
+                     width: 180px;
+                     height: 180px;
+                     margin-left: 70%;
+                 }
+                 button {
+                    width: 80px;
+                    height: 60px;
+                 }
+            }
+        </style>
+    </head>
+    <body onload="startgame();">
+<script>
+
+    var myplayer;
+    var food;
+    var scoreno = 1;
+    var obstacles = [];
+    function startgame(){
+        mygamearea.start();
+        myplayer = new component(30,40,"bug.jpg",10,30,"image");//width,height,color,xaxis,yaxis
+        food = new component(20,25,"apple.jpg",90,120,"image");
+        score = new component("20px","Consolas","white",650,30,"text");
+        gameover = new component("30px","Consolas","white",300,250,"text");
+    }   
+
+        var mygamearea = {
+            canvas :  document.createElement("canvas"),
+            
+            start : function(){
+                this.canvas.width = 800;
+                this.canvas.height = 450;
+                this.context = this.canvas.getContext("2d"); //these is essential to create element in canvas
+                document.body.insertBefore(this.canvas , document.body.childNodes[0]);
+                this.interval = setInterval(updategamearea,20);  //updates the canvas
+
+                window.addEventListener('keydown',function (e){
+                    mygamearea.keys = (mygamearea.keys || []); // it creates a array of all keys to be pressed if of all array if one or more is true if i.e the key is pressed it moves 
+                    mygamearea.keys[e.keyCode] = true;
+                })
+                window.addEventListener('keyup',function (e){
+                    mygamearea.keys[e.keyCode] = false;
+                })
+
+                this.frameno = 0;
+            },
+
+
+            clear : function () { 
+                this.context.clearRect(0, 0,this.canvas.width ,this.canvas.height);  //here canvas is considered as rect and
+                                                                                    //everthing is cleared                        
+            },
+
+            stop : function(){
+                clearInterval(this.interval);//stops reloading the start gane functions when encountered
+            }
+
+    
+        }
+
+        function framerate(n){
+            if(mygamearea.frameno % n == 0)
+            {return true;}
+            return false;
+        }
+
+        function component(width , height ,color, x , y,type){          //constructor to create game pieces
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+            this.type = type;                                          //its for checking if we want to write something or put image
+            
+            this.movelinear = 0;
+            this.moveperpendicular = 0;
+            
+            this.keyboardmove = function (){
+                    this.movelinear = 0;
+                    this.moveperpendicular = 0;
+             
+                    
+                    if((mygamearea.keys[38]) || (mygamearea.keys[87])) //uparrow W
+                    {
+                        move('up');
+                    }
+                   else if((mygamearea.keys[40]) || (mygamearea.keys[83]))//down arrow s
+                    {
+                        move('down');
+                    }
+                   else if((mygamearea.keys[39]) || (mygamearea.keys[68]))//right arrow d
+                    {
+                        move('right');
+                    }
+                   else if((mygamearea.keys[37]) || (mygamearea.keys[65]))//left arrow a
+                    {
+                        move('left');
+                    }
+                    else{
+                        stopmove();
+                    }
+                }
+                      
+            
+            this.update = function(){  
+                ctx = mygamearea.context;  //puts the element on to the canvas
+                ctx.fillStyle = color;
+                if(type == "image"){
+                    this.image = new Image();
+                    this.image.src = color;
+                }    
+                if(this.type == "text"){
+                    ctx.font = this.width + " " + this.height;
+                    ctx.fillText(this.text,this.x, this.y);    
+                }
+                else if(this.type == "image"){
+                    ctx.drawImage(this.image,this.x,this.y,this.width,this.height);
+                }
+                else{ 
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+            }
+            
+            this.newpos = function () {
+                this.x += this.movelinear;
+                this.y += this.moveperpendicular;
+              }
+      
+
+              /*if the gamepiece coordinates falls in the same plane as the food the function is stop*/
+
+            this.hit = function (food) {
+                var crash_status = true;
+                var playpieceleft = this.x ;
+                var playpieceright = this.x + this.width;
+                var playpiecetop = this.y ;
+                var playpiecebottom = this.y  + this.height;
+                
+                var obstacleleft = food.x;
+                var obstacleright = food.x + food.width;
+                var obstacletop = food.y;
+                var obstaclebottom = food.y + food.height;
+
+                if( (playpieceleft > obstacleright)||(playpieceright < obstacleleft) 
+                        || (playpiecetop > obstaclebottom) || (playpiecebottom < obstacletop) )
+                        {
+                            crash_status =  false;
+                        }
+                if( (playpieceleft <= 0)||(playpieceright >= 800)  || (playpiecetop <= 0) || (playpiecebottom >= 450) )
+                        {
+                            crash_status = "outofcanvas";
+                        }
+                 return crash_status;        
+             }
+        }
+
+        function move(direction){
+            console.log(myplayer.image.src);
+            if(direction == "up")
+                myplayer.moveperpendicular -= 1; 
+            if(direction == "down")
+                myplayer.moveperpendicular += 1; 
+            if(direction == "right")
+                myplayer.movelinear += 1;
+            if(direction == "left")     
+                myplayer.movelinear -= 1; 
+        }
+
+        function stopmove(){
+                myplayer.image.src = "pacmanopen.png";
+                console.log(myplayer.image.src);
+                myplayer.moveperpendicular = 0;
+                myplayer.movelinear = 0;
+            }
+        function obstaclemove(i){
+                    obstacles[i].x -= 1;
+            }    
+        function updategamearea(){
+            score.text = "score:-" + scoreno;
+            for(i=0 ; i< obstacles.length; i++){
+               if((myplayer.hit(obstacles[i]))||(myplayer.hit(obstacles[i])=="outofcanvas")){
+                    gameover.text = "gameover"; 
+                    gameover.update();
+                    restart.update();
+                    mygamearea.stop();//stops the game if u hit the something
+                    return;
+                }
+            }
+            //clears the canvas and enters the element on to canvas contuniously
+            mygamearea.clear();//should be written  before  updating the obstacle otherwise they will get cleared as soon as they are added to the canvas
+                 mygamearea.frameno += 1;
+            myplayer.newpos();
+            /*so how this works is it refreshes the position if the component each time a key is pressed*/
+            if(mygamearea.keys){
+                myplayer.keyboardmove();
+            }     
+            myplayer.newpos();
+
+            if(myplayer.hit(food)){
+                food = new component(20,25,"apple.jpg",Math.floor(Math.random()*750),Math.floor(Math.random()*350) + 50,"image");
+                food.update();   
+                mygamearea.clear();
+                myplayer.update();
+                scoreno += 1;
+                score.text = "score:-" + scoreno;
+                score.update();
+            }
+
+                myplayer.update();
+                food.update();
+                score.update();
+        
+        
+                if(mygamearea.frameno == 1 || framerate(300)){
+                obstacles.push(new component(Math.floor(Math.random()*150)+150 , 10 ,"red",800,120));
+                obstacles.push(new component(Math.floor(Math.random()*150)+150 , 10 ,"green",800,220));
+                obstacles.push(new component(Math.floor(Math.random()*50)+200 , 10 ,"blue",800,320));
+            }
+            
+
+            for(i=0 ; i<obstacles.length ; i++){
+                obstacles[i].x +=-1;
+                obstacles[i].update();
+            }      
+
+        
+        
+        }
+
+        
+</script>
+<div>
+<button onmousedown="move('up');" ontouchstart="move('up')" onmouseup="stopmove()">UP</button><br>
+<button onmousedown="move('left');" onmouseup="stopmove()">LEFT</button>
+<button onmousedown="move('right');" onmouseup="stopmove()">RIGHT</button><br>
+<button onmousedown="move('down');" onmouseup="stopmove()">DOWN</button>
+</div>
+
+</body>
+</html>
