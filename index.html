@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,">
         <title>Prototype Game</title>
         <style>
             canvas{
@@ -10,6 +10,15 @@
                 margin-left: 20%;
                 border:10px solid rgb(61, 58, 58);
                 border-radius: 10px;
+            }
+            #restart{
+                visibility: hidden;
+                width: 200px;
+                height: 100px;
+                border-radius: 0;
+                background-color: rgb(27, 27, 77);
+                font-size: 2rem;
+                color: burlywood;
             }
             div{
                 border-radius: 50%;
@@ -56,6 +65,10 @@
     var food;
     var scoreno = 1;
     var obstacles = [];
+    function restartgame(){
+       location.reload();
+    }
+
     function startgame(){
         mygamearea.start();
         myplayer = new component(30,40,"bug.jpg",10,30,"image");//width,height,color,xaxis,yaxis
@@ -219,6 +232,8 @@
                     gameover.text = "gameover"; 
                     gameover.update();
                     mygamearea.stop();//stops the game if u hit the something
+                    console.log(document.getElementById("restart").style.visibility);
+                    document.getElementById("restart").style.visibility = "visible";
                     return;
                 }
             }
@@ -271,7 +286,10 @@
 <button onmousedown="move('right');" ontouchstart="move('right');" onmouseup="stopmove()" ontouchend="stopmove();">RIGHT</button><br>
 <button onmousedown="move('down');" ontouchstart="move('down');" onmouseup="stopmove()" ontouchend="stopmove();">DOWN</button>
 </div>
-<h2>Use keyboard's WASD or arrow keys and for mobile devices use the arrow keys</h2>
+
+<button id="restart" onclick="restartgame()" >restart</button>
+
+<h2>Use keyboard's WASD or arrow keys and for mobile devices use the arrow buttons , keep in pressing the buttons to move to desired area</h2>
 <h2>note once you start using keypad the onscreen buttons are rendered useless</h2>
 </body>
 </html>
